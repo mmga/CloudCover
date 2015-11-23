@@ -1,6 +1,7 @@
 package com.mmga.cloudcover;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -10,6 +11,7 @@ public class MyApplication extends Application {
 
     private RequestQueue mRequestQueue;
     private static MyApplication mInstance;
+    private static Context context;
 
     public static final String TAG = MainActivity.class.getName();
 
@@ -17,6 +19,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+        context = getApplicationContext();
         mRequestQueue = Volley.newRequestQueue(getApplicationContext());
     }
 
@@ -35,5 +38,9 @@ public class MyApplication extends Application {
 
     public void cancle() {
         mRequestQueue.cancelAll(TAG);
+    }
+
+    public static Context getContext() {
+        return context;
     }
 }

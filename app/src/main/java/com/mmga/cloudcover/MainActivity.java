@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -32,17 +35,23 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final int MSG_COMPLETE = 1;
+    private static final long REFRESH_DELAY = 500;
     MyApplication helper = MyApplication.getInstance();
     RequestQueue queue = helper.getRequestQueue();
 
     Gson gson;
 
-    ArrayList<Songs> songsList;
+    ArrayList<Songs> songsList = new ArrayList<Songs>();
+    ArrayList<Songs> songsListOfAll = new ArrayList<Songs>();
 
     private RecyclerView mRecyclerView;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private RecyclerViewAdapter mAdapter;
     private TextView mTitle;
     private EditText mSearchText;
     private ImageView searchIcon;
+    private int offset =0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,33 +70,57 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     startSearching();
                     return true;
                 }
-
                 return false;
             }
         });
 
         searchIcon = (ImageView) findViewById(R.id.search_icon);
-
         searchIcon.setOnClickListener(this);
-
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-
-
         gson = new Gson();
 
         String title = getUrlFromSharedPreferences();
         mTitle.setText(String.format("《%s》", title));
-        String url = encodeInputToImgUrl(title);
-        parseJson(queue, url);
+
+        mTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
 
         mRecyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
+        final RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
+        mAdapter = new RecyclerViewAdapter(songsList);
+        mRecyclerView.setAdapter(mAdapter);
+
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiprefreshlayout);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            GridLayoutManager layoutManager = ((GridLayoutManager)mRecyclerView.getLayoutManager());
+            int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem + 1 == mAdapter.getItemCount()) {
+                    handler.sendEmptyMessageDelayed(MSG_COMPLETE, REFRESH_DELAY);
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+
+            }
+        });
     }
 
 
     //网络请求，返回json数据并解析映射到songs
-    private ArrayList<Songs> parseJson(RequestQueue queue, String url) {
+    private ArrayList<Songs> parseJson(String url) {
         StringRequest stringRequest = new StringRequest(
                 url,
                 new Response.Listener<String>() {
@@ -100,22 +133,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Type listType = new TypeToken<ArrayList<Songs>>() {
                             }.getType();
                             songsList = gson.fromJson(songString, listType);
-
-                            ArrayList<Data> dataList = new ArrayList<>();
-
-                            for (int i = songsList.size() - 1; i >= 0; i--) {
-                                Data data = new Data();
-                                data.setSongName(songsList.get(i).getName());
-                                data.setArtistName(songsList.get(i).getArtists().get(0).getName());
-                                data.setAlbumName(songsList.get(i).getAlbum().getName());
-                                data.setCoverUrl(songsList.get(i).getAlbum().getPicUrl());
-                                dataList.add(0, data);
-                            }
-
-                            RecyclerViewAdapter mAdapter = new RecyclerViewAdapter(dataList);
-                            mRecyclerView.setAdapter(mAdapter);
+                            songsListOfAll.addAll(songsList);
+                            mAdapter.setAdapterData(songsListOfAll);
                         } else {
-                            showErrorDialog();
+                            showNoResultDialog();
                         }
 
                     }
@@ -123,13 +144,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        showErrorDialog();
+                        showNoConnectionDialog();
                     }
                 });
         queue.add(stringRequest);
 
         return songsList;
     }
+
+
 
     @Override
     public void onClick(View v) {
@@ -149,10 +172,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     //解码，解决中文，空格等问题
-    private String encodeInputToImgUrl(String userInput) {
+    private String encodeInputToImgUrl(String userInput,int offset) {
         try {
             String encodeStr = URLEncoder.encode(userInput, "UTF-8");
-            return "http://s.music.163.com/search/get/?type=1&limit=30&offset=0&s=" + encodeStr;
+            return "http://s.music.163.com/search/get/?type=1&limit=10&offset=" + offset + "&s=" + encodeStr;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             return null;
@@ -162,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void saveTitleToSharedPreferences(String string) {
         SharedPreferences.Editor editor = getSharedPreferences("init_data", MODE_PRIVATE).edit();
         editor.putString("default_title", string);
-        editor.commit();
+        editor.apply();
     }
 
     private String getUrlFromSharedPreferences() {
@@ -171,10 +194,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private void showErrorDialog() {
+    private void showNoResultDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("哎呀！");
-        builder.setMessage("没搜着啊！换个名试试看");
+        builder.setMessage("搜不到啊！换个名试试看");
+        builder.setPositiveButton("好吧", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        builder.show();
+    }
+
+    private void showNoConnectionDialog() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("哎呀！");
+        builder.setMessage("网路不给力啊");
         builder.setPositiveButton("好吧", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -194,10 +229,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void startSearching() {
+        songsListOfAll.clear();
+        offset = 0;
         String userInput = mSearchText.getText().toString();
         if (!userInput.equals("")) {
-            String url = encodeInputToImgUrl(userInput);
-            parseJson(queue, url);
+            String url = encodeInputToImgUrl(userInput,0);
+            parseJson(url);
             mTitle.setText(String.format("《%s》", userInput));
             mTitle.setVisibility(View.VISIBLE);
             mSearchText.setVisibility(View.GONE);
@@ -209,4 +246,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         closeKeyboard(MainActivity.this, mSearchText);
 
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        String url = encodeInputToImgUrl(getUrlFromSharedPreferences(),offset);
+        parseJson(url);
+    }
+
+    private Handler handler = new Handler(new Handler.Callback() {
+
+        @Override
+        public boolean handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_COMPLETE:
+                    offset += 10;
+                    String url = encodeInputToImgUrl(getUrlFromSharedPreferences(), offset);
+                    parseJson(url);
+                    break;
+            }
+            return false;
+        }
+    });
+
 }

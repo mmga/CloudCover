@@ -7,26 +7,22 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.toolbox.ImageLoader;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
-/**
- * Created by mmga on 2015/11/22.
- */
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
 
-    ArrayList<Data> dataList = null;
+    ArrayList<Songs> songList = null;
 
-
-    ImageLoader imageLoader;
-
-    public RecyclerViewAdapter(ArrayList<Data> dataList) {
-        ImageLoader imageLoader = new ImageLoader(MyApplication.getInstance().getRequestQueue(), new BitmapCache());
-        this.imageLoader = imageLoader;
-        this.dataList = dataList;
+    public RecyclerViewAdapter(ArrayList<Songs> songList) {
+        this.songList = songList;
     }
 
+    public void setAdapterData(ArrayList<Songs> songList) {
+        this.songList = songList;
+        notifyDataSetChanged();
+    }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -40,18 +36,30 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(final MyViewHolder holder, int position) {
 
-        holder.title.setText(dataList.get(position).getSongName());
-        holder.artistAndAlbum.setText(dataList.get(position).getArtistName() + "--" + dataList.get(position).getAlbumName());
+//        holder.title.setText(dataList.get(position).getSongName());
+//        holder.artistAndAlbum.setText(dataList.get(position).getArtistName() + "--" + dataList.get(position).getAlbumName());
 
-        ImageLoader.ImageListener listener = ImageLoader.getImageListener(holder.cardImage, R.drawable.default_bg, R.mipmap.ic_launcher);
-        imageLoader.get(dataList.get(position).getCoverUrl(), listener, 200, 200);
+
+        holder.title.setText(songList.get(position).getName());
+        holder.artistAndAlbum.setText(songList.get(position).getArtists().get(0).getName() + "--" + songList.get(position).getAlbum().getName());
+
+        Glide.with(MyApplication.getContext())
+                .load(songList.get(position).getAlbum().getPicUrl())
+                .asBitmap()
+                .error(R.mipmap.ic_launcher)
+                .placeholder(R.drawable.default_bg)
+                .centerCrop()
+                .fitCenter()
+                .into(holder.cardImage);
+
 
 
     }
 
+
     @Override
     public int getItemCount() {
-        return dataList.size();
+        return songList.size();
     }
 
 
