@@ -35,17 +35,18 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final int MSG_COMPLETE = 1;
-    private static final long REFRESH_DELAY = 500;
+    private static final int MSG_LOADMORE = 0;
+    private static final int MSG_REFRESH = 1;
+    private static final long REFRESH_DELAY = 2000;
     MyApplication helper = MyApplication.getInstance();
     RequestQueue queue = helper.getRequestQueue();
 
     Gson gson;
 
     ArrayList<Songs> songsList = new ArrayList<Songs>();
-    ArrayList<Songs> songsListOfAll = new ArrayList<Songs>();
+//    ArrayList<Songs> songsListOfAll = new ArrayList<Songs>();
 
-    private RecyclerView mRecyclerView;
+    private GridRecyclerView mRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerViewAdapter mAdapter;
     private TextView mTitle;
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         searchIcon = (ImageView) findViewById(R.id.search_icon);
         searchIcon.setOnClickListener(this);
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        mRecyclerView = (GridRecyclerView) findViewById(R.id.recycler_view);
         gson = new Gson();
 
         String title = getUrlFromSharedPreferences();
@@ -89,23 +90,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         mRecyclerView.setHasFixedSize(true);
-        final RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new RecyclerViewAdapter(songsList);
         mRecyclerView.setAdapter(mAdapter);
 
 
+
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiprefreshlayout);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                handler.sendEmptyMessageDelayed(MSG_REFRESH, REFRESH_DELAY);
+            }
+        });
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            GridLayoutManager layoutManager = ((GridLayoutManager)mRecyclerView.getLayoutManager());
+            GridLayoutManager layoutManager = ((GridLayoutManager) mRecyclerView.getLayoutManager());
             int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem + 1 == mAdapter.getItemCount()) {
-                    handler.sendEmptyMessageDelayed(MSG_COMPLETE, REFRESH_DELAY);
+                    handler.sendEmptyMessageDelayed(MSG_LOADMORE, 0);
                 }
             }
 
@@ -119,8 +128,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    //网络请求，返回json数据并解析映射到songs
-    private ArrayList<Songs> parseJson(String url) {
+    //网络请求，返回json数据并解析映射到songs,这里的offset参数用来判断是刷新页面还是加载更多，决定是否运行动画
+    private ArrayList<Songs> parseJson(final String url, final int offset) {
         StringRequest stringRequest = new StringRequest(
                 url,
                 new Response.Listener<String>() {
@@ -133,8 +142,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Type listType = new TypeToken<ArrayList<Songs>>() {
                             }.getType();
                             songsList = gson.fromJson(songString, listType);
-                            songsListOfAll.addAll(songsList);
-                            mAdapter.setAdapterData(songsListOfAll);
+//                            songsListOfAll.addAll(songsList);
+//                            mAdapter.setAdapterData(songsListOfAll);
+                            mAdapter.addAdapterData(songsList);
+                            if (offset == 0) {
+                                mRecyclerView.scheduleLayoutAnimation();
+                            }
+
                         } else {
                             showNoResultDialog();
                         }
@@ -229,12 +243,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void startSearching() {
-        songsListOfAll.clear();
+//        songsListOfAll.clear();
+        mAdapter.clearAdapterData();
         offset = 0;
         String userInput = mSearchText.getText().toString();
         if (!userInput.equals("")) {
             String url = encodeInputToImgUrl(userInput,0);
-            parseJson(url);
+            parseJson(url,offset);
             mTitle.setText(String.format("《%s》", userInput));
             mTitle.setVisibility(View.VISIBLE);
             mSearchText.setVisibility(View.GONE);
@@ -250,8 +265,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
+        offset = 0;
         String url = encodeInputToImgUrl(getUrlFromSharedPreferences(),offset);
-        parseJson(url);
+        parseJson(url,offset);
+
     }
 
     private Handler handler = new Handler(new Handler.Callback() {
@@ -259,11 +276,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_COMPLETE:
+                case MSG_LOADMORE:
                     offset += 10;
                     String url = encodeInputToImgUrl(getUrlFromSharedPreferences(), offset);
-                    parseJson(url);
+                    parseJson(url,offset);
                     break;
+                case MSG_REFRESH:
+                    offset = 0;
+//                    mAdapter.setAdapterData(new ArrayList<Songs>());
+//                    songsListOfAll.clear();
+                    mAdapter.clearAdapterData();
+                    String urlRefresh = encodeInputToImgUrl(getUrlFromSharedPreferences(), offset);
+                    parseJson(urlRefresh,offset);
+                    mSwipeRefreshLayout.setRefreshing(false);
             }
             return false;
         }

@@ -13,15 +13,26 @@ import java.util.ArrayList;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
 
-    ArrayList<Songs> songList = null;
+    ArrayList<Songs> newSongList;
+    ArrayList<Songs> allSongList = null;
 
     public RecyclerViewAdapter(ArrayList<Songs> songList) {
-        this.songList = songList;
+        this.allSongList = songList;
     }
 
     public void setAdapterData(ArrayList<Songs> songList) {
-        this.songList = songList;
+        this.allSongList = songList;
         notifyDataSetChanged();
+    }
+
+    public void addAdapterData(ArrayList<Songs> songList) {
+        newSongList = songList;
+        allSongList.addAll(newSongList);
+        notifyDataSetChanged();
+    }
+
+    public void clearAdapterData() {
+        allSongList.clear();
     }
 
     @Override
@@ -36,15 +47,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(final MyViewHolder holder, int position) {
 
-//        holder.title.setText(dataList.get(position).getSongName());
-//        holder.artistAndAlbum.setText(dataList.get(position).getArtistName() + "--" + dataList.get(position).getAlbumName());
+        holder.title.setText(allSongList.get(position).getName());
+        if (allSongList.get(position).getArtists().size() != 0) {
+            holder.artistAndAlbum.setText(allSongList.get(position).getArtists().get(0).getName()
+                    + "--" + allSongList.get(position).getAlbum().getName());
+        }
 
-
-        holder.title.setText(songList.get(position).getName());
-        holder.artistAndAlbum.setText(songList.get(position).getArtists().get(0).getName() + "--" + songList.get(position).getAlbum().getName());
 
         Glide.with(MyApplication.getContext())
-                .load(songList.get(position).getAlbum().getPicUrl())
+                .load(allSongList.get(position).getAlbum().getPicUrl())
                 .asBitmap()
                 .error(R.mipmap.ic_launcher)
                 .placeholder(R.drawable.default_bg)
@@ -53,13 +64,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 .into(holder.cardImage);
 
 
-
     }
 
 
     @Override
     public int getItemCount() {
-        return songList.size();
+        return allSongList.size();
     }
 
 
@@ -76,9 +86,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             title = (TextView) itemView.findViewById(R.id.title);
             artistAndAlbum = (TextView) itemView.findViewById(R.id.artist_album);
 
-
         }
     }
+
+
 
 
 }

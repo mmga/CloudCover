@@ -17,13 +17,14 @@
         android:layout_height="wrap_content"
         >
 
-        <android.support.v7.widget.RecyclerView
+        <com.mmga.cloudcover.GridRecyclerView
             android:paddingTop="@dimen/activity_vertical_margin"
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layoutAnimation="@anim/grid_layout_animation"
             android:clipToPadding="false">
-        </android.support.v7.widget.RecyclerView>
+        </com.mmga.cloudcover.GridRecyclerView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
