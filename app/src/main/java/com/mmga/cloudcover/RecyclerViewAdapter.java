@@ -53,7 +53,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     + "--" + allSongList.get(position).getAlbum().getName());
         }
 
-
         Glide.with(MyApplication.getContext())
                 .load(allSongList.get(position).getAlbum().getPicUrl())
                 .asBitmap()
@@ -62,8 +61,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 .centerCrop()
                 .fitCenter()
                 .into(holder.cardImage);
-
-
     }
 
 

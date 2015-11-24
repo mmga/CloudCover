@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -44,8 +46,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Gson gson;
 
     ArrayList<Songs> songsList = new ArrayList<Songs>();
-//    ArrayList<Songs> songsListOfAll = new ArrayList<Songs>();
 
+    private CoordinatorLayout mCoordinatorLayout;
+    private AppBarLayout mAppBarLayout;
     private GridRecyclerView mRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerViewAdapter mAdapter;
@@ -61,7 +64,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        StatusBarCompat.compat(this, getResources().getColor(R.color.colorPrimary));
+
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
+        mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar);
         mTitle = (TextView) findViewById(R.id.title);
+
+
         mSearchText = (EditText) findViewById(R.id.edittext);
         mSearchText.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
         mSearchText.setOnKeyListener(new View.OnKeyListener() {
@@ -90,12 +99,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         mRecyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
+        final RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new RecyclerViewAdapter(songsList);
         mRecyclerView.setAdapter(mAdapter);
 
 
+
+        mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                float alpha = (-verticalOffset) / mAppBarLayout.getHeight();
+                Log.d("mmga", "alpha = " + alpha);
+                //// TODO: 2015/11/24 statusbar变色
+            }
+        });
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiprefreshlayout);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
@@ -223,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void showNoConnectionDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("哎呀！");
-        builder.setMessage("网路不给力啊");
+        builder.setMessage("网络不给力啊");
         builder.setPositiveButton("好吧", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -266,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onStart() {
         super.onStart();
         offset = 0;
-        String url = encodeInputToImgUrl(getUrlFromSharedPreferences(),offset);
+        String url = encodeInputToImgUrl(getUrlFromSharedPreferences(), offset);
         parseJson(url,offset);
 
     }
@@ -293,5 +311,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return false;
         }
     });
+
+
 
 }
