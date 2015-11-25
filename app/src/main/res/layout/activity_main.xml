@@ -8,10 +8,10 @@
     android:id="@+id/coordinatorLayout"
     tools:context="com.mmga.cloudcover.MainActivity">
 
-    <ImageView
-        android:id="@+id/statusbar_bg"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <!--<ImageView-->
+        <!--android:id="@+id/statusbar_bg"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -38,7 +38,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginLeft="@dimen/imagelist_margin"
                     android:textSize="24sp"
                     android:singleLine="true"
                     android:textColor="@color/colorTitle"
@@ -50,7 +50,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginLeft="@dimen/imagelist_margin"
                     android:textSize="24sp"
                     android:singleLine="true"
                     android:visibility="gone"

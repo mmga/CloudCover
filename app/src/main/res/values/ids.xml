@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="glide_request" />
+    <item type="id" name="image_url" />
+    <item type="id" name="song_name" />
+    <item type="id" name="artist_name" />
+    <item type="id" name="album_name" />
+</resources>

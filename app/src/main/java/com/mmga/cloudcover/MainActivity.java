@@ -2,12 +2,12 @@ package com.mmga.cloudcover;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -35,7 +35,7 @@ import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,RecyclerViewAdapter.OnRecyclerViewItemClickListener {
 
     private static final int MSG_LOADMORE = 0;
     private static final int MSG_REFRESH = 1;
@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     ArrayList<Songs> songsList = new ArrayList<Songs>();
 
-    private CoordinatorLayout mCoordinatorLayout;
     private AppBarLayout mAppBarLayout;
     private GridRecyclerView mRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -66,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         StatusBarCompat.compat(this, getResources().getColor(R.color.colorPrimary));
 
-        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
         mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar);
         mTitle = (TextView) findViewById(R.id.title);
 
@@ -105,12 +103,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mRecyclerView.setAdapter(mAdapter);
 
 
+        offset = 0;
+        String url = encodeInputToImgUrl(getUrlFromSharedPreferences(), offset);
+        parseJson(url, offset);
 
         mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                 float alpha = (-verticalOffset) / mAppBarLayout.getHeight();
-                Log.d("mmga", "alpha = " + alpha);
                 //// TODO: 2015/11/24 statusbar变色
             }
         });
@@ -166,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             if (offset == 0) {
                                 mRecyclerView.scheduleLayoutAnimation();
                             }
+                            mAdapter.setOnItemClickListener(MainActivity.this);
 
                         } else {
                             showNoResultDialog();
@@ -283,9 +284,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
-        offset = 0;
-        String url = encodeInputToImgUrl(getUrlFromSharedPreferences(), offset);
-        parseJson(url,offset);
+
 
     }
 
@@ -313,5 +312,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     });
 
 
+    @Override
+    public void onItemClick(View view,Songs songs) {
+        Intent intent = new Intent(MainActivity.this, ImageActivity.class);
+        intent.putExtra("imageUrl", songs.getAlbum().getPicUrl());
+        if (songs.getArtists().size() != 0) {
+            intent.putExtra("artistName", songs.getArtists().get(0).getName());
+        } else {
+            intent.putExtra("artistName", "未知");
+        }
+        intent.putExtra("albumName", songs.getAlbum().getName());
+        intent.putExtra("songName", songs.getName());
 
+        startActivity(intent);
+    }
 }

@@ -6,6 +6,7 @@ import android.content.Context;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.request.target.ViewTarget;
 
 public class MyApplication extends Application {
 
@@ -21,6 +22,7 @@ public class MyApplication extends Application {
         mInstance = this;
         context = getApplicationContext();
         mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+        ViewTarget.setTagId(R.id.glide_request);
     }
 
     public static synchronized MyApplication getInstance() {

@@ -1,6 +1,7 @@
 package com.mmga.cloudcover;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,15 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> implements View.OnClickListener{
+
+
+
+    public interface OnRecyclerViewItemClickListener{
+        void onItemClick(View view, Songs songs);
+    }
+
+    private OnRecyclerViewItemClickListener mOnRecyclerViewItemClickListener = null;
 
     ArrayList<Songs> newSongList;
     ArrayList<Songs> allSongList = null;
@@ -40,7 +49,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recyclerview_item, parent, false);
         MyViewHolder vh = new MyViewHolder(view);
-
+        view.setOnClickListener(this);
         return vh;
     }
 
@@ -53,14 +62,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     + "--" + allSongList.get(position).getAlbum().getName());
         }
 
+        String imageUrl = allSongList.get(position).getAlbum().getPicUrl();
+        holder.card.setTag(allSongList.get(position));
+
         Glide.with(MyApplication.getContext())
-                .load(allSongList.get(position).getAlbum().getPicUrl())
-                .asBitmap()
+                .load(imageUrl)
+                .crossFade(500)
                 .error(R.mipmap.ic_launcher)
                 .placeholder(R.drawable.default_bg)
                 .centerCrop()
                 .fitCenter()
                 .into(holder.cardImage);
+
     }
 
 
@@ -69,22 +82,37 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return allSongList.size();
     }
 
+    @Override
+    public void onClick(View v) {
+        if (mOnRecyclerViewItemClickListener != null) {
+            mOnRecyclerViewItemClickListener.onItemClick(v, (Songs) v.getTag());
+            Log.d("mmga", "getTag = " + v.getTag());
+        }
+    }
+
+    public void setOnItemClickListener(OnRecyclerViewItemClickListener listener) {
+        this.mOnRecyclerViewItemClickListener = listener;
+    }
+
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView cardImage;
         public TextView title, artistAndAlbum;
+        private View card;
 
 
         public MyViewHolder(View itemView) {
             super(itemView);
 
+            card = itemView;
             cardImage = (ImageView) itemView.findViewById(R.id.card_image);
             title = (TextView) itemView.findViewById(R.id.title);
             artistAndAlbum = (TextView) itemView.findViewById(R.id.artist_album);
 
         }
     }
+
 
 
 
