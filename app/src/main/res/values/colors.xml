@@ -3,7 +3,8 @@
     <color name="colorPrimary">#d73744</color>
     <color name="colorPrimaryDark">#d73744</color>
     <color name="colorAccent">#eaeaea</color>
-    <color name="colorTitle">#f4f4f4</color>
+    <color name="colorWhiteText">#f4f4f4</color>
+    <color name="colorHalfTransWhiteText">#70f4f4f4</color>
     <color name="colorBackground">#eaeaea</color>
     <color name="colorBlack">#000000</color>
     <color name="colorHalfTransBlack">#80000000</color>

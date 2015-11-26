@@ -5,12 +5,15 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -43,6 +46,7 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
     private LinearLayout saveButton,shareButton, starButton;
     private PhotoViewAttacher mPhotoViewAttacher;
     String imageUrl,albumName,artistName, songName;
+    private Context context = MyApplication.getContext();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +65,7 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
         this.songName = intent.getStringExtra("songName");
 
 
-        Glide.with(MyApplication.getContext())
+        Glide.with(context)
                 .load(imageUrl)
                 .crossFade(500)
                 .error(R.mipmap.ic_launcher)
@@ -154,6 +158,7 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
                 finish();
                 break;
             case R.id.detail_info_button:
+                showDetailInfo();
                 break;
             case R.id.save_button:
                 saveImageToGallery();
@@ -165,8 +170,17 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    private void showDetailInfo() {
+        InfoDialog infoDialog = new InfoDialog(ImageActivity.this,R.style.infoDialog);
+        infoDialog.setSongName(songName);
+        infoDialog.setAlbumName(albumName);
+        infoDialog.setArtistName(artistName);
+        infoDialog.show();
+
+    }
+
     private void saveImageToGallery() {
-        Glide.with(MyApplication.getContext())
+        Glide.with(context)
                 .load(imageUrl)
                 .asBitmap()
                 .toBytes()
@@ -183,7 +197,14 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
                             FileOutputStream fos = new FileOutputStream(file);
                             fos.write(resource);
                             fos.close();
+
+                            //把文件插入到系统图库并通知更新
+                            String path = file.getAbsolutePath();
+//                            MediaStore.Images.Media.insertImage(context.getContentResolver(),path , fileName, null);
+                            context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + path)));
+
                             ToastUtil.showShort("图片已保存" + fileDir);
+                            Log.d("mmga", "path = " + path);
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         } catch (IOException e) {

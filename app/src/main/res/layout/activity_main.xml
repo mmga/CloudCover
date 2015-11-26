@@ -41,7 +41,7 @@
                     android:layout_marginLeft="@dimen/imagelist_margin"
                     android:textSize="24sp"
                     android:singleLine="true"
-                    android:textColor="@color/colorTitle"
+                    android:textColor="@color/colorWhiteText"
                     />
 
                 <EditText
@@ -54,7 +54,7 @@
                     android:textSize="24sp"
                     android:singleLine="true"
                     android:visibility="gone"
-                    android:textColor="@color/colorTitle"/>
+                    android:textColor="@color/colorWhiteText"/>
 
                 <ImageView
                     android:layout_weight="0"

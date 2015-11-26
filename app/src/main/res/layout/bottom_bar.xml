@@ -37,7 +37,7 @@
             android:alpha="0.5"
             android:textSize="@dimen/button_textsize"
             android:layout_gravity="center_horizontal"
-            android:textColor="@color/colorTitle"
+            android:textColor="@color/colorWhiteText"
             />
 
     </LinearLayout>
@@ -66,7 +66,7 @@
             android:alpha="0.5"
             android:textSize="@dimen/button_textsize"
             android:layout_gravity="center_horizontal"
-            android:textColor="@color/colorTitle"
+            android:textColor="@color/colorWhiteText"
             />
 
     </LinearLayout>
@@ -95,7 +95,7 @@
             android:alpha="0.5"
             android:textSize="@dimen/button_textsize"
             android:layout_gravity="center_horizontal"
-            android:textColor="@color/colorTitle"
+            android:textColor="@color/colorWhiteText"
             />
 
     </LinearLayout>

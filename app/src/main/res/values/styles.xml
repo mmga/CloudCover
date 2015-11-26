@@ -20,5 +20,14 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 
+    <style name="infoDialog" parent="android:Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:background">#00000000</item>
+        <item name="android:windowBackground">@drawable/info_dialog_bg</item>
+
+    </style>
+
 
 </resources>
