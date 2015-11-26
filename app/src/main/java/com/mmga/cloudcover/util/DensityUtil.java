@@ -1,4 +1,4 @@
-package com.mmga.cloudcover;
+package com.mmga.cloudcover.util;
 
 import android.content.Context;
 

@@ -1,4 +1,4 @@
-package com.mmga.cloudcover;
+package com.mmga.cloudcover.wigdet;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -12,24 +12,24 @@ import android.view.Display;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.mmga.cloudcover.R;
+
 public class InfoDialog extends Dialog {
 
     private TextView mSongName,mArtistName, mAlbumName,publishTime;
     private String songName,artistName, albumName;
-    private Context context;
 
     String[] entryName = new String[]{"音乐名：","歌手：","所属专辑：","发行时间: "};
 
-    protected InfoDialog(Context context) {
+    public InfoDialog(Context context) {
         super(context);
-        this.context = context;
     }
 
-    protected InfoDialog(Context context, int theme) {
+    public InfoDialog(Context context, int theme) {
         super(context, theme);
     }
 
-    protected InfoDialog(Context context, boolean cancelable, OnCancelListener cancelListener) {
+    public InfoDialog(Context context, boolean cancelable, OnCancelListener cancelListener) {
         super(context, cancelable, cancelListener);
     }
 

@@ -1,4 +1,4 @@
-package com.mmga.cloudcover;
+package com.mmga.cloudcover.ui;
 
 
 import android.animation.Animator;
@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -27,6 +26,12 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.mmga.cloudcover.MyApplication;
+import com.mmga.cloudcover.R;
+import com.mmga.cloudcover.util.ShareUtils;
+import com.mmga.cloudcover.util.StatusBarCompat;
+import com.mmga.cloudcover.util.ToastUtil;
+import com.mmga.cloudcover.wigdet.InfoDialog;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,6 +44,8 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
 
     private static final int BAR_INVISIBLE = 1000;
     private static final int BAR_VISIBLE = 1001;
+    private static final int FLAG_SAVE = 0;
+    private static final int FLAG_SHARE = 1;
     private int isBarVisible = BAR_INVISIBLE;
     private LinearLayout bottomButtonBar;
     private RelativeLayout topButtonBar;
@@ -46,12 +53,13 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
     private LinearLayout saveButton,shareButton, starButton;
     private PhotoViewAttacher mPhotoViewAttacher;
     String imageUrl,albumName,artistName, songName;
+    Uri uri = null;
     private Context context = MyApplication.getContext();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fullsize_image);
+        setContentView(R.layout.activity_image);
 
         initView();
 
@@ -161,14 +169,17 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
                 showDetailInfo();
                 break;
             case R.id.save_button:
-                saveImageToGallery();
+                saveOrShareImageToGallery(FLAG_SAVE);
                 break;
             case R.id.star_button:
                 break;
             case R.id.share_button:
+                shareByWeixin();
                 break;
         }
     }
+
+
 
     private void showDetailInfo() {
         InfoDialog infoDialog = new InfoDialog(ImageActivity.this,R.style.infoDialog);
@@ -179,7 +190,7 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
-    private void saveImageToGallery() {
+    private void saveOrShareImageToGallery(final int flag) {
         Glide.with(context)
                 .load(imageUrl)
                 .asBitmap()
@@ -203,17 +214,25 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
 //                            MediaStore.Images.Media.insertImage(context.getContentResolver(),path , fileName, null);
                             context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + path)));
 
-                            ToastUtil.showShort("图片已保存" + fileDir);
-                            Log.d("mmga", "path = " + path);
+                            uri = Uri.fromFile(file);
+                            if (flag == FLAG_SHARE) {
+                                ShareUtils.shareImage(ImageActivity.this, uri);
+                            } else {
+                                ToastUtil.showShort("图片已保存" + fileDir);
+                            }
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                    }});
+                    }
+                });
 
     }
 
+    private void shareByWeixin() {
+        saveOrShareImageToGallery(FLAG_SHARE);
+    }
 
 
 

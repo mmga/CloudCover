@@ -20,14 +20,16 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="@dimen/vertical_margin"
-        android:layout_marginBottom="@dimen/vertical_margin">
+        android:paddingTop="@dimen/vertical_margin"
+        android:paddingBottom="@dimen/vertical_margin"
+        android:background="@drawable/normal_rectangle_mask_selector">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:src="@mipmap/ic_content_save_white_24dp"
+
 
             />
         <TextView
@@ -49,8 +51,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="@dimen/vertical_margin"
-        android:layout_marginBottom="@dimen/vertical_margin">
+        android:paddingTop="@dimen/vertical_margin"
+        android:paddingBottom="@dimen/vertical_margin"
+        android:background="@drawable/normal_rectangle_mask_selector">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -78,8 +81,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="@dimen/vertical_margin"
-        android:layout_marginBottom="@dimen/vertical_margin">
+        android:paddingTop="@dimen/vertical_margin"
+        android:paddingBottom="@dimen/vertical_margin"
+        android:background="@drawable/normal_rectangle_mask_selector">
 
         <ImageView
             android:layout_width="wrap_content"

@@ -1,4 +1,4 @@
-package com.mmga.cloudcover;
+package com.mmga.cloudcover.wigdet;
 
 import android.content.Context;
 import android.support.v7.widget.GridLayoutManager;

@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/imagelist_margin"
     android:paddingRight="@dimen/imagelist_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.mmga.cloudcover.MainActivity"
+    tools:context=".ui.MainActivity"
     tools:showIn="@layout/activity_main"
     android:background="@color/colorBackground">
 
@@ -17,14 +17,14 @@
         android:layout_height="wrap_content"
         >
 
-        <com.mmga.cloudcover.GridRecyclerView
+        <com.mmga.cloudcover.wigdet.GridRecyclerView
             android:paddingTop="@dimen/imagelist_margin"
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layoutAnimation="@anim/grid_layout_animation"
             android:clipToPadding="false">
-        </com.mmga.cloudcover.GridRecyclerView>
+        </com.mmga.cloudcover.wigdet.GridRecyclerView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
 

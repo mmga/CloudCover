@@ -1,4 +1,4 @@
-package com.mmga.cloudcover;
+package com.mmga.cloudcover.ui;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -9,6 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.mmga.cloudcover.MyApplication;
+import com.mmga.cloudcover.R;
+import com.mmga.cloudcover.model.Songs;
 
 import java.util.ArrayList;
 

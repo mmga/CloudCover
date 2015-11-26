@@ -1,4 +1,4 @@
-package com.mmga.cloudcover;
+package com.mmga.cloudcover.ui;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,6 +29,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mmga.cloudcover.wigdet.GridRecyclerView;
+import com.mmga.cloudcover.MyApplication;
+import com.mmga.cloudcover.R;
+import com.mmga.cloudcover.model.Songs;
+import com.mmga.cloudcover.util.StatusBarCompat;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
@@ -160,8 +165,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Type listType = new TypeToken<ArrayList<Songs>>() {
                             }.getType();
                             songsList = gson.fromJson(songString, listType);
-//                            songsListOfAll.addAll(songsList);
-//                            mAdapter.setAdapterData(songsListOfAll);
                             mAdapter.addAdapterData(songsList);
                             if (offset == 0) {
                                 mRecyclerView.scheduleLayoutAnimation();
@@ -262,7 +265,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void startSearching() {
-//        songsListOfAll.clear();
         mAdapter.clearAdapterData();
         offset = 0;
         String userInput = mSearchText.getText().toString();
@@ -300,8 +302,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case MSG_REFRESH:
                     offset = 0;
-//                    mAdapter.setAdapterData(new ArrayList<Songs>());
-//                    songsListOfAll.clear();
                     mAdapter.clearAdapterData();
                     String urlRefresh = encodeInputToImgUrl(getUrlFromSharedPreferences(), offset);
                     parseJson(urlRefresh,offset);

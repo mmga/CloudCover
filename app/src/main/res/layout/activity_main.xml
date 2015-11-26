@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:id="@+id/coordinatorLayout"
-    tools:context="com.mmga.cloudcover.MainActivity">
+    tools:context=".ui.MainActivity">
 
     <!--<ImageView-->
         <!--android:id="@+id/statusbar_bg"-->

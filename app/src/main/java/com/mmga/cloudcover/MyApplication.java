@@ -7,6 +7,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.request.target.ViewTarget;
+import com.mmga.cloudcover.ui.MainActivity;
 
 public class MyApplication extends Application {
 

@@ -1,7 +1,9 @@
-package com.mmga.cloudcover;
+package com.mmga.cloudcover.util;
 
 import android.content.Context;
 import android.widget.Toast;
+
+import com.mmga.cloudcover.MyApplication;
 
 /**
  * Created by mmga on 2015/11/26.

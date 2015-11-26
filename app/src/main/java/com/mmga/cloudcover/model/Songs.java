@@ -1,4 +1,4 @@
-package com.mmga.cloudcover;
+package com.mmga.cloudcover.model;
 
 import java.lang.String;import java.util.List;
 
