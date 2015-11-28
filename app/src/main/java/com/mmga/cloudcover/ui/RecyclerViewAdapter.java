@@ -1,5 +1,6 @@
 package com.mmga.cloudcover.ui;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> implements View.OnClickListener{
 
 
+    private Context context = MyApplication.getContext();
 
     public interface OnRecyclerViewItemClickListener{
         void onItemClick(View view, Songs songs);
@@ -25,8 +27,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     private OnRecyclerViewItemClickListener mOnRecyclerViewItemClickListener = null;
 
-    ArrayList<Songs> newSongList;
-    ArrayList<Songs> allSongList = null;
+    private ArrayList<Songs> newSongList;
+    private ArrayList<Songs> allSongList = null;
 
     public RecyclerViewAdapter(ArrayList<Songs> songList) {
         this.allSongList = songList;
@@ -61,8 +63,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         holder.title.setText(allSongList.get(position).getName());
         if (allSongList.get(position).getArtists().size() != 0) {
-            holder.artistAndAlbum.setText(allSongList.get(position).getArtists().get(0).getName()
-                    + "--" + allSongList.get(position).getAlbum().getName());
+            holder.artistAndAlbum.setText(String.format("%s%s%s", allSongList.get(position).getArtists().get(0).getName(), context.getString(R.string.dash), allSongList.get(position).getAlbum().getName()));
         }
 
         String imageUrl = allSongList.get(position).getAlbum().getPicUrl();
@@ -71,7 +72,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         Glide.with(MyApplication.getContext())
                 .load(imageUrl)
                 .crossFade(500)
-                .error(R.mipmap.ic_launcher)
+                .error(R.drawable.error_holder)
                 .placeholder(R.drawable.default_bg)
                 .centerCrop()
                 .fitCenter()

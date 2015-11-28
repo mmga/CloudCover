@@ -1,10 +1,8 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="imagelist_margin">2dp</dimen>
+    <dimen name="imagelist_margin">1dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="vertical_margin">10dp</dimen>
-    <dimen name="dialog_vertical_margin">100dp</dimen>
-    <dimen name="dialog_horizontal_margin">50dp</dimen>
     <dimen name="button_textsize">10sp</dimen>
 
 

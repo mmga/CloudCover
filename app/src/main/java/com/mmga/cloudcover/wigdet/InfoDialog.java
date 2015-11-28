@@ -19,7 +19,7 @@ public class InfoDialog extends Dialog {
     private TextView mSongName,mArtistName, mAlbumName,publishTime;
     private String songName,artistName, albumName;
 
-    String[] entryName = new String[]{"音乐名：","歌手：","所属专辑：","发行时间: "};
+    private final String[] entryName = new String[]{"音乐名：","歌手：","所属专辑：","发行时间: "};
 
     public InfoDialog(Context context) {
         super(context);

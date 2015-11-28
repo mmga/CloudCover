@@ -5,11 +5,9 @@ import android.widget.Toast;
 
 import com.mmga.cloudcover.MyApplication;
 
-/**
- * Created by mmga on 2015/11/26.
- */
+
 public class ToastUtil {
-    public static Context sContext = MyApplication.getContext();
+    private static Context sContext = MyApplication.getContext();
 
 
     private ToastUtil() {

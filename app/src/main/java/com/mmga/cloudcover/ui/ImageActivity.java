@@ -7,12 +7,11 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -29,7 +28,6 @@ import com.bumptech.glide.request.target.Target;
 import com.mmga.cloudcover.MyApplication;
 import com.mmga.cloudcover.R;
 import com.mmga.cloudcover.util.ShareUtils;
-import com.mmga.cloudcover.util.StatusBarCompat;
 import com.mmga.cloudcover.util.ToastUtil;
 import com.mmga.cloudcover.wigdet.InfoDialog;
 
@@ -52,9 +50,11 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
     private ImageView fullSizeImage,backButton, infoButton;
     private LinearLayout saveButton,shareButton, starButton;
     private PhotoViewAttacher mPhotoViewAttacher;
-    String imageUrl,albumName,artistName, songName;
-    Uri uri = null;
+    private String imageUrl,albumName,artistName,songName;
+    private Uri uri = null;
     private Context context = MyApplication.getContext();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,9 +62,6 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_image);
 
         initView();
-
-        StatusBarCompat.compat(this, Color.BLACK);
-
 
         Intent intent = getIntent();
         this.imageUrl = intent.getStringExtra("imageUrl");
@@ -76,7 +73,7 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
         Glide.with(context)
                 .load(imageUrl)
                 .crossFade(500)
-                .error(R.mipmap.ic_launcher)
+                .error(R.drawable.error_holder)
                 .listener(listener)
                 .into(fullSizeImage);
 
@@ -101,7 +98,7 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
         infoButton.setOnClickListener(this);
     }
 
-    RequestListener listener = new RequestListener<String, GlideDrawable>() {
+    private RequestListener listener = new RequestListener<String, GlideDrawable>() {
         @Override
         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
             return false;
@@ -123,39 +120,37 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
         mPhotoViewAttacher.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
             @Override
             public void onPhotoTap(View view, float x, float y) {
-                hideStatusBar();
-                if (isBarVisible == BAR_INVISIBLE) {
-                    showButtonBar();
-                    isBarVisible = BAR_VISIBLE;
-                } else {
-                    hideButtonBar();
-                    isBarVisible = BAR_INVISIBLE;
-                }
+                switchButtonBar();
             }
         });
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mPhotoViewAttacher.setScale(mPhotoViewAttacher.getMediumScale(), true);
-                mPhotoViewAttacher.update();
-            }
-        }, 500);
+        //自动放大图片至全屏
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                mPhotoViewAttacher.setScale(mPhotoViewAttacher.getMediumScale(), true);
+//                mPhotoViewAttacher.update();
+//            }
+//        }, 500);
     }
 
-
+    private void switchButtonBar() {
+        if (isBarVisible == BAR_INVISIBLE) {
+            showButtonBar();
+            isBarVisible = BAR_VISIBLE;
+        } else {
+            hideButtonBar();
+            isBarVisible = BAR_INVISIBLE;
+        }
+    }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        hideStatusBar();
-    }
-
-    private void hideStatusBar() {
-        View decorView = getWindow().getDecorView();
-        // 隐藏状态栏
-        int uiFullscreen = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiFullscreen);
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+            switchButtonBar();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
 
@@ -172,9 +167,10 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
                 saveOrShareImageToGallery(FLAG_SAVE);
                 break;
             case R.id.star_button:
+                ToastUtil.showLong("人家还没准备好..");
                 break;
             case R.id.share_button:
-                shareByWeixin();
+                saveOrShareImageToGallery(FLAG_SHARE);
                 break;
         }
     }
@@ -209,9 +205,8 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
                             fos.write(resource);
                             fos.close();
 
-                            //把文件插入到系统图库并通知更新
+                            //通知图库更新
                             String path = file.getAbsolutePath();
-//                            MediaStore.Images.Media.insertImage(context.getContentResolver(),path , fileName, null);
                             context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + path)));
 
                             uri = Uri.fromFile(file);
@@ -229,11 +224,6 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
                 });
 
     }
-
-    private void shareByWeixin() {
-        saveOrShareImageToGallery(FLAG_SHARE);
-    }
-
 
 
 

@@ -45,12 +45,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int MSG_LOADMORE = 0;
     private static final int MSG_REFRESH = 1;
     private static final long REFRESH_DELAY = 2000;
-    MyApplication helper = MyApplication.getInstance();
-    RequestQueue queue = helper.getRequestQueue();
+    private MyApplication helper = MyApplication.getInstance();
+    private RequestQueue queue = helper.getRequestQueue();
 
-    Gson gson;
+    private Gson gson;
 
-    ArrayList<Songs> songsList = new ArrayList<Songs>();
+    private ArrayList<Songs> songsList = new ArrayList<>();
 
     private AppBarLayout mAppBarLayout;
     private GridRecyclerView mRecyclerView;
@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RecyclerViewAdapter mAdapter;
     private TextView mTitle;
     private EditText mSearchText;
-    private ImageView searchIcon;
     private int offset =0;
 
     @Override
@@ -87,20 +86,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        searchIcon = (ImageView) findViewById(R.id.search_icon);
+        ImageView searchIcon = (ImageView) findViewById(R.id.search_icon);
         searchIcon.setOnClickListener(this);
-        mRecyclerView = (GridRecyclerView) findViewById(R.id.recycler_view);
         gson = new Gson();
 
-        String title = getUrlFromSharedPreferences();
+        String title = getTitleFromSharedPreferences();
         mTitle.setText(String.format("《%s》", title));
 
-        mTitle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
-
+        mRecyclerView = (GridRecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.setHasFixedSize(true);
         final RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -109,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         offset = 0;
-        String url = encodeInputToImgUrl(getUrlFromSharedPreferences(), offset);
+        String url = encodeInputToImgUrl(getTitleFromSharedPreferences(), offset);
         parseJson(url, offset);
 
         mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
@@ -152,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     //网络请求，返回json数据并解析映射到songs,这里的offset参数用来判断是刷新页面还是加载更多，决定是否运行动画
-    private ArrayList<Songs> parseJson(final String url, final int offset) {
+    private void parseJson(final String url, final int offset) {
         StringRequest stringRequest = new StringRequest(
                 url,
                 new Response.Listener<String>() {
@@ -185,9 +178,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
         queue.add(stringRequest);
 
-        return songsList;
     }
-
 
 
     @Override
@@ -197,6 +188,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (mSearchText.getVisibility() == View.GONE) {
                     mTitle.setVisibility(View.GONE);
                     mSearchText.setVisibility(View.VISIBLE);
+                    mSearchText.setText(getTitleFromSharedPreferences());
+                    mSearchText.setSelection(mSearchText.getText().length());
                     mSearchText.requestFocus();
                     openKeyboard(MainActivity.this, mSearchText);
                 } else {
@@ -224,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editor.apply();
     }
 
-    private String getUrlFromSharedPreferences() {
+    private String getTitleFromSharedPreferences() {
         SharedPreferences sharedPreferences = getSharedPreferences("init_data", MODE_PRIVATE);
         return sharedPreferences.getString("default_title", "Hello");
     }
@@ -284,10 +277,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-
+    public void onBackPressed() {
+        if (mSearchText.getVisibility() == View.VISIBLE) {
+            mTitle.setVisibility(View.VISIBLE);
+            mSearchText.setVisibility(View.GONE);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     private Handler handler = new Handler(new Handler.Callback() {
@@ -297,13 +293,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             switch (msg.what) {
                 case MSG_LOADMORE:
                     offset += 10;
-                    String url = encodeInputToImgUrl(getUrlFromSharedPreferences(), offset);
+                    String url = encodeInputToImgUrl(getTitleFromSharedPreferences(), offset);
                     parseJson(url,offset);
                     break;
                 case MSG_REFRESH:
                     offset = 0;
                     mAdapter.clearAdapterData();
-                    String urlRefresh = encodeInputToImgUrl(getUrlFromSharedPreferences(), offset);
+                    String urlRefresh = encodeInputToImgUrl(getTitleFromSharedPreferences(), offset);
                     parseJson(urlRefresh,offset);
                     mSwipeRefreshLayout.setRefreshing(false);
             }

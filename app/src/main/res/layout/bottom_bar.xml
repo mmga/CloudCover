@@ -10,7 +10,7 @@
     <View
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1.5"
+        android:layout_weight="2"
         android:visibility="invisible"
         />
 
@@ -53,7 +53,8 @@
         android:orientation="vertical"
         android:paddingTop="@dimen/vertical_margin"
         android:paddingBottom="@dimen/vertical_margin"
-        android:background="@drawable/normal_rectangle_mask_selector">
+        android:background="@drawable/normal_rectangle_mask_selector"
+        android:visibility="gone">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -108,7 +109,7 @@
     <View
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1.5"
+        android:layout_weight="2"
         android:visibility="invisible"
         />
 

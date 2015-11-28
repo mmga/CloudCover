@@ -3,7 +3,6 @@ package com.mmga.cloudcover;
 import android.app.Application;
 import android.content.Context;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.request.target.ViewTarget;
@@ -15,11 +14,12 @@ public class MyApplication extends Application {
     private static MyApplication mInstance;
     private static Context context;
 
-    public static final String TAG = MainActivity.class.getName();
+    private static final String TAG = MainActivity.class.getName();
 
     @Override
     public void onCreate() {
         super.onCreate();
+//        LeakCanary.install(this);
         mInstance = this;
         context = getApplicationContext();
         mRequestQueue = Volley.newRequestQueue(getApplicationContext());
@@ -34,14 +34,12 @@ public class MyApplication extends Application {
         return mRequestQueue;
     }
 
-    public <T> void add(Request<T> req) {
-        req.setTag(TAG);
-        mRequestQueue.add(req);
-    }
-
-    public void cancle() {
-        mRequestQueue.cancelAll(TAG);
-    }
+// --Commented out by Inspection START (2015/11/28 13:35):
+//    public <T> void add(Request<T> req) {
+//        req.setTag(TAG);
+//        mRequestQueue.add(req);
+//    }
+// --Commented out by Inspection STOP (2015/11/28 13:35)
 
     public static Context getContext() {
         return context;

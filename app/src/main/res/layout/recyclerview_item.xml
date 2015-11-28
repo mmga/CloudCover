@@ -5,6 +5,7 @@
     android:id="@+id/cardview"
     android:layout_width="200dp"
     android:layout_height="wrap_content"
+    android:layout_margin="1dp"
     app:cardPreventCornerOverlap="true"
     >
 
