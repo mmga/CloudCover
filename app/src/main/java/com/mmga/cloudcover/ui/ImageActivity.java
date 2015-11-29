@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -27,18 +26,19 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.mmga.cloudcover.MyApplication;
 import com.mmga.cloudcover.R;
+import com.mmga.cloudcover.model.UniformInfo;
 import com.mmga.cloudcover.util.ShareUtils;
 import com.mmga.cloudcover.util.ToastUtil;
 import com.mmga.cloudcover.wigdet.InfoDialog;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import io.realm.Realm;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
-public class ImageActivity extends AppCompatActivity implements View.OnClickListener {
+public class ImageActivity extends BaseActivity implements View.OnClickListener {
 
     private static final int BAR_INVISIBLE = 1000;
     private static final int BAR_VISIBLE = 1001;
@@ -47,13 +47,13 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
     private int isBarVisible = BAR_INVISIBLE;
     private LinearLayout bottomButtonBar;
     private RelativeLayout topButtonBar;
-    private ImageView fullSizeImage,backButton, infoButton;
-    private LinearLayout saveButton,shareButton, starButton;
+    private ImageView fullSizeImage, backButton, infoButton;
+    private LinearLayout saveButton, shareButton, starButton;
     private PhotoViewAttacher mPhotoViewAttacher;
-    private String imageUrl,albumName,artistName,songName;
+    private String imageUrl, albumName, artistName, songName;
     private Uri uri = null;
     private Context context = MyApplication.getContext();
-
+    private Realm realm;
 
 
     @Override
@@ -62,6 +62,8 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_image);
 
         initView();
+
+//        realm = Realm.getDefaultInstance();
 
         Intent intent = getIntent();
         this.imageUrl = intent.getStringExtra("imageUrl");
@@ -78,7 +80,6 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
                 .into(fullSizeImage);
 
     }
-
 
 
     private void initView() {
@@ -111,8 +112,6 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
             return true;
         }
     };
-
-
 
 
     private void setupPhotoViewAttacher() {
@@ -167,7 +166,8 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
                 saveOrShareImageToGallery(FLAG_SAVE);
                 break;
             case R.id.star_button:
-                ToastUtil.showLong("人家还没准备好..");
+//                saveInfoToRealm();
+//                ToastUtil.showLong("人家还没准备好..");
                 break;
             case R.id.share_button:
                 saveOrShareImageToGallery(FLAG_SHARE);
@@ -176,9 +176,8 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
     }
 
 
-
     private void showDetailInfo() {
-        InfoDialog infoDialog = new InfoDialog(ImageActivity.this,R.style.infoDialog);
+        InfoDialog infoDialog = new InfoDialog(ImageActivity.this, R.style.infoDialog);
         infoDialog.setSongName(songName);
         infoDialog.setAlbumName(albumName);
         infoDialog.setArtistName(artistName);
@@ -215,14 +214,42 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
                             } else {
                                 ToastUtil.showShort("图片已保存" + fileDir);
                             }
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
                 });
 
+    }
+
+    private void saveInfoToRealm() {
+
+        UniformInfo info = new UniformInfo();
+        info.setName(songName);
+        info.setAlbum(albumName);
+        info.setArtist(artistName);
+        info.setImageUrl(imageUrl);
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(info);
+        realm.commitTransaction();
+        ToastUtil.showShort("已收藏");
+
+//        realm.executeTransaction(new Realm.Transaction() {
+//            @Override
+//            public void execute(Realm realm) {
+//                UniformInfo info = realm.createObject(UniformInfo.class);
+//                info.setName(songName);
+//                info.setAlbum(albumName);
+//                info.setArtist(artistName);
+//                info.setImageUrl(imageUrl);
+//            }
+//        }, new Realm.Transaction.Callback() {
+//            @Override
+//            public void onSuccess() {
+//                super.onSuccess();
+//                ToastUtil.showShort("已收藏");
+//            }
+//        });
     }
 
 
@@ -257,5 +284,9 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
         });
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        realm.close();
+    }
 }

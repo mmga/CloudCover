@@ -10,7 +10,6 @@ import android.os.Message;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -27,20 +26,24 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.mmga.cloudcover.wigdet.GridRecyclerView;
 import com.mmga.cloudcover.MyApplication;
 import com.mmga.cloudcover.R;
 import com.mmga.cloudcover.model.Songs;
+import com.mmga.cloudcover.model.UniformInfo;
 import com.mmga.cloudcover.util.StatusBarCompat;
+import com.mmga.cloudcover.wigdet.GridRecyclerView;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener,RecyclerViewAdapter.OnRecyclerViewItemClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener,RecyclerViewAdapter.OnRecyclerViewItemClickListener {
 
     private static final int MSG_LOADMORE = 0;
     private static final int MSG_REFRESH = 1;
@@ -72,6 +75,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar);
         mTitle = (TextView) findViewById(R.id.title);
 
+//        mTitle.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent i = new Intent(MainActivity.this, GalleryActivity.class);
+//                startActivity(i);
+//            }
+//        });
 
         mSearchText = (EditText) findViewById(R.id.edittext);
         mSearchText.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
@@ -88,7 +98,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ImageView searchIcon = (ImageView) findViewById(R.id.search_icon);
         searchIcon.setOnClickListener(this);
-        gson = new Gson();
+        gson = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
+            @Override
+            public boolean shouldSkipField(FieldAttributes f) {
+                return f.getDeclaringClass().equals(UniformInfo.class);
+            }
+
+            @Override
+            public boolean shouldSkipClass(Class<?> clazz) {
+                return false;
+            }
+        }).create();
 
         String title = getTitleFromSharedPreferences();
         mTitle.setText(String.format("《%s》", title));
@@ -204,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String encodeInputToImgUrl(String userInput,int offset) {
         try {
             String encodeStr = URLEncoder.encode(userInput, "UTF-8");
-            return "http://s.music.163.com/search/get/?type=1&limit=10&offset=" + offset + "&s=" + encodeStr;
+            return "http://s.music.163.com/search/get/?type=1&limit=10&filterDj=true&offset=" + offset + "&s=" + encodeStr;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             return null;
