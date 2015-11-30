@@ -24,11 +24,6 @@ public class MyApplication extends Application {
         context = getApplicationContext();
         mRequestQueue = Volley.newRequestQueue(getApplicationContext());
         ViewTarget.setTagId(R.id.glide_request);
-
-//        Realm.setDefaultConfiguration(new RealmConfiguration.Builder(this)
-//                .schemaVersion(1)
-//                .deleteRealmIfMigrationNeeded()
-//                .build());
     }
 
     public static synchronized MyApplication getInstance() {
@@ -38,13 +33,6 @@ public class MyApplication extends Application {
     public RequestQueue getRequestQueue() {
         return mRequestQueue;
     }
-
-// --Commented out by Inspection START (2015/11/28 13:35):
-//    public <T> void add(Request<T> req) {
-//        req.setTag(TAG);
-//        mRequestQueue.add(req);
-//    }
-// --Commented out by Inspection STOP (2015/11/28 13:35)
 
     public static Context getContext() {
         return context;

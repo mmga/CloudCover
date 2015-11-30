@@ -6,12 +6,13 @@ import io.realm.annotations.PrimaryKey;
 
 public class UniformInfo extends RealmObject {
 
-    @PrimaryKey
+//    @PrimaryKey
     private int _id;
 
     private String name;
     private String artist;
     private String album;
+    @PrimaryKey
     private String imageUrl;
 
 

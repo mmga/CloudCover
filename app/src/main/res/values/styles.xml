@@ -21,7 +21,8 @@
     <style name="AppThemeFullScreen" parent="@android:style/Theme.NoTitleBar.Fullscreen">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/colorBlack</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowTranslucentStatus" tools:targetApi="kitkat">true</item>
     </style>
 
 

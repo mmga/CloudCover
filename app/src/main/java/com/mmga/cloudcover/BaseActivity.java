@@ -1,4 +1,4 @@
-package com.mmga.cloudcover.ui;
+package com.mmga.cloudcover;
 
 import android.support.v7.app.AppCompatActivity;
 

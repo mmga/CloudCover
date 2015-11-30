@@ -26,15 +26,12 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.mmga.cloudcover.BaseActivity;
 import com.mmga.cloudcover.MyApplication;
 import com.mmga.cloudcover.R;
 import com.mmga.cloudcover.model.Songs;
-import com.mmga.cloudcover.model.UniformInfo;
 import com.mmga.cloudcover.util.StatusBarCompat;
 import com.mmga.cloudcover.wigdet.GridRecyclerView;
 
@@ -75,13 +72,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,R
         mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar);
         mTitle = (TextView) findViewById(R.id.title);
 
-//        mTitle.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent i = new Intent(MainActivity.this, GalleryActivity.class);
-//                startActivity(i);
-//            }
-//        });
+        mTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, StarActivity.class);
+                startActivity(i);
+            }
+        });
 
         mSearchText = (EditText) findViewById(R.id.edittext);
         mSearchText.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
@@ -98,17 +95,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,R
 
         ImageView searchIcon = (ImageView) findViewById(R.id.search_icon);
         searchIcon.setOnClickListener(this);
-        gson = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
-            @Override
-            public boolean shouldSkipField(FieldAttributes f) {
-                return f.getDeclaringClass().equals(UniformInfo.class);
-            }
-
-            @Override
-            public boolean shouldSkipClass(Class<?> clazz) {
-                return false;
-            }
-        }).create();
+        gson = new Gson();
 
         String title = getTitleFromSharedPreferences();
         mTitle.setText(String.format("《%s》", title));

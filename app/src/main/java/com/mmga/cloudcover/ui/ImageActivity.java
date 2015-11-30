@@ -36,9 +36,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
+import me.imid.swipebacklayout.lib.SwipeBackLayout;
+import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
-public class ImageActivity extends BaseActivity implements View.OnClickListener {
+public class ImageActivity extends SwipeBackActivity implements View.OnClickListener {
 
     private static final int BAR_INVISIBLE = 1000;
     private static final int BAR_VISIBLE = 1001;
@@ -54,6 +57,7 @@ public class ImageActivity extends BaseActivity implements View.OnClickListener 
     private Uri uri = null;
     private Context context = MyApplication.getContext();
     private Realm realm;
+    private SwipeBackLayout mSwipeBackLayout;
 
 
     @Override
@@ -63,7 +67,12 @@ public class ImageActivity extends BaseActivity implements View.OnClickListener 
 
         initView();
 
+        mSwipeBackLayout = getSwipeBackLayout();
+        mSwipeBackLayout.setEdgeSize(100);
+
+
 //        realm = Realm.getDefaultInstance();
+        realm = Realm.getInstance(this);
 
         Intent intent = getIntent();
         this.imageUrl = intent.getStringExtra("imageUrl");
@@ -166,7 +175,7 @@ public class ImageActivity extends BaseActivity implements View.OnClickListener 
                 saveOrShareImageToGallery(FLAG_SAVE);
                 break;
             case R.id.star_button:
-//                saveInfoToRealm();
+                saveInfoToRealm();
 //                ToastUtil.showLong("人家还没准备好..");
                 break;
             case R.id.share_button:
@@ -224,32 +233,23 @@ public class ImageActivity extends BaseActivity implements View.OnClickListener 
 
     private void saveInfoToRealm() {
 
-        UniformInfo info = new UniformInfo();
-        info.setName(songName);
-        info.setAlbum(albumName);
-        info.setArtist(artistName);
-        info.setImageUrl(imageUrl);
-        realm.beginTransaction();
-        realm.copyToRealmOrUpdate(info);
-        realm.commitTransaction();
-        ToastUtil.showShort("已收藏");
+        RealmResults<UniformInfo> result = realm.where(UniformInfo.class)
+                .equalTo("imageUrl",imageUrl).findAll();
+        if (result.size() == 0) {
+            realm.beginTransaction();
+            UniformInfo data = realm.createObject(UniformInfo.class);
+            data.setName(songName);
+            data.setAlbum(albumName);
+            data.setArtist(artistName);
+            data.setImageUrl(imageUrl);
+            realm.commitTransaction();
+            ToastUtil.showShort("已收藏");
+        } else {
+            ToastUtil.showShort("已经收藏过啦！");
+        }
 
-//        realm.executeTransaction(new Realm.Transaction() {
-//            @Override
-//            public void execute(Realm realm) {
-//                UniformInfo info = realm.createObject(UniformInfo.class);
-//                info.setName(songName);
-//                info.setAlbum(albumName);
-//                info.setArtist(artistName);
-//                info.setImageUrl(imageUrl);
-//            }
-//        }, new Realm.Transaction.Callback() {
-//            @Override
-//            public void onSuccess() {
-//                super.onSuccess();
-//                ToastUtil.showShort("已收藏");
-//            }
-//        });
+
+
     }
 
 
@@ -287,6 +287,6 @@ public class ImageActivity extends BaseActivity implements View.OnClickListener 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        realm.close();
+        realm.close();
     }
 }
